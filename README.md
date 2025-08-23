@@ -50,8 +50,8 @@ Composer 2.8.10
 erDiagram
   products {
     bigint id PK
-    varchar name "UNIQUE"
-    int price "UNSIGNED"
+    varchar name
+    int price
     varchar image
     text description
     timestamp created_at
@@ -60,7 +60,7 @@ erDiagram
 
   seasons {
     bigint id PK
-    varchar name "UNIQUE"
+    varchar name
     timestamp created_at
     timestamp updated_at
   }
@@ -68,7 +68,6 @@ erDiagram
   product_season {
     bigint product_id FK
     bigint season_id  FK
-    UNIQUE product_id,season_id
   }
 
   products ||--o{ product_season : has-many
