@@ -46,13 +46,13 @@ php artisan storage:link により public/storage → storage/app/public へシ�
 公開URL: http://localhost/storage/imgs/xxx.png
 
 ## 動作確認
-# 実体（storage/app/public に存在するか）
+#### 実体（storage/app/public に存在するか）
 ls src/storage/app/public/imgs
-# シンボリックリンクが public にあるか（コンテナ内で確認）
+#### シンボリックリンクが public にあるか（コンテナ内で確認）
 docker compose exec php ls -l /var/www/public | grep storage
-# リンク経由で参照できるか（コンテナ内で確認）
+#### リンク経由で参照できるか（コンテナ内で確認）
 docker compose exec php ls /var/www/public/storage/imgs
-# ブラウザでのアクセス例
+#### ブラウザでのアクセス例
 http://localhost/storage/imgs/melon.png
 ```
 
