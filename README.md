@@ -18,16 +18,19 @@ docker compose up -d --build
 # 2) 依存インストール（コンテナ内に composer が入っている想定）
 docker compose exec php composer install
 
-# 3) アプリキー生成
+# 3) .env を用意（例からコピー）
+docker compose exec php cp /var/www/.env.example /var/www/.env
+
+# 4) アプリキー生成
 docker compose exec php php /var/www/artisan key:generate
 
-# 4) マイグレーション & シーディング
+# 5) マイグレーション & シーディング
 docker compose exec php php /var/www/artisan migrate --seed
 
-# 5) ストレージ公開リンク
+# 6) ストレージ公開リンク
 docker compose exec php php /var/www/artisan storage:link
 
-# 6) （フロント資産がある場合はホストで）
+# 7) （フロント資産がある場合はホストで）
 cd src
 npm install
 npm run build   # or npm run dev
