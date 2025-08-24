@@ -1,0 +1,5 @@
+docker-compose.override.yml
+.DS_Store
+Thumbs.db
+# MySQL data (docker volume)
+docker/mysql/data/
