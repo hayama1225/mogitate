@@ -62,7 +62,7 @@ $currentImage = $isEdit && !empty($product->image) ? asset('storage/'.$product->
                 // Controllerから渡す: $seasons = Season::select('id','name')->orderBy('id')->get();
                 // 選択状態: old() 優先 → 編集時は関連ID
                 $selectedSeasons = collect(old('seasons', ($isEdit ?? false) ? $product->seasons->pluck('id')->all() : []))
-                ->map(fn($v) => (string)$v) // 文字列に正規化（oldと型を合わせる）
+                ->map(fn($v) => (string)$v) // 文字列に正規化
                 ->all();
                 @endphp
 
@@ -75,22 +75,26 @@ $currentImage = $isEdit && !empty($product->image) ? asset('storage/'.$product->
                     </label>
                     @endforeach
                 </div>
+
+                {{-- ★ エラーは季節ブロックの直下に表示する --}}
+                <div id="season-error" class="error">
+                    @error('seasons') {{ $message }} @enderror
+                </div>
             </div>
-            @error('seasons') <div class="error">{{ $message }}</div> @enderror
 
-        </div>
+            {{-- 商品説明 --}}
+            <div class="form-wide" style="margin-top:22px"> {{-- ← class を追加 --}}
+                <label>商品説明 <span class="req">必須</span></label>
+                <textarea class="textarea" name="description"
+                    placeholder="{{ $isEdit ? '' : '商品の説明を入力' }}">{{ old('description', $isEdit ? ($product->description ?? '') : '') }}</textarea>
+                @error('description') <div class="error">{{ $message }}</div> @enderror
+            </div>
 
-        {{-- 商品説明 --}}
-        <div style="margin-top:22px">
-            <label>商品説明 <span class="req">必須</span></label>
-            <textarea class="textarea" name="description"
-                placeholder="{{ $isEdit ? '' : '商品の説明を入力' }}">{{ old('description', $isEdit ? ($product->description ?? '') : '') }}</textarea>
-            @error('description') <div class="error">{{ $message }}</div> @enderror
-        </div>
-
-        <div class="actions">
-            <a class="btn btn-gray" href="{{ url('/products') }}">戻る</a>
-            <button class="btn btn-yellow" type="submit">{{ $isEdit ? '変更を保存' : '登録' }}</button>
+            {{-- ボタン --}}
+            <div class="actions form-wide"> {{-- ← class を追加 --}}
+                <a class="btn btn-gray" href="{{ url('/products') }}">戻る</a>
+                <button class="btn btn-yellow" type="submit">{{ $isEdit ? '変更を保存' : '登録' }}</button>
+            </div>
         </div>
     </form>
 

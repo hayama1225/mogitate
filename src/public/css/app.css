@@ -468,36 +468,7 @@ label .req {
     border-color: #f3c617;
 }
 
-/* --- フォームのボタンだけを元の見た目に強制（他の .btn へは影響なし） --- */
-.form-wrap .actions {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    margin: 28px 0;
-}
-
-.form-wrap .actions .btn {
-    display: inline-block;
-    border: none;
-    border-radius: 10px;
-    /* ← 丸すぎ問題をここで抑える */
-    padding: 12px 26px;
-    font-weight: 700;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
-    cursor: pointer;
-}
-
-.form-wrap .actions .btn-gray {
-    background: #e5e5e5;
-}
-
-.form-wrap .actions .btn-yellow {
-    background: #f3c617;
-}
-
-.form-wrap .delete-area .btn-danger {
-    background: #ff5a5f;
-    color: #fff;
-    padding: 10px 14px;
-    border-radius: 8px;
+/* フォームで全幅にしたい行（説明・ボタンなど） */
+.form-wide {
+    grid-column: 1 / -1;
 }
