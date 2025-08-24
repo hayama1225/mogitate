@@ -31,10 +31,27 @@ docker compose exec php php /var/www/artisan storage:link
 cd src
 npm install
 npm run build   # or npm run dev
-
 ```
 「ローカルの場合は DB_HOST=127.0.0.1, DB_USERNAME=root, DB_PASSWORD= に変更してください」
 
+## 画像保存と表示（storage:link を利用：応用機能）
+本アプリでは、画像は storage/app/public に保存し、
+php artisan storage:link により public/storage → storage/app/public へシンボリックリンクを作成して参照します。
+
+実体: src/storage/app/public/imgs/*.png（または .jpg）
+リンク: src/public/storage/imgs/*.png
+公開URL: http://localhost/storage/imgs/xxx.png
+
+## 動作確認
+<!-- 実体（storage/app/public に存在するか） -->
+ls src/storage/app/public/imgs
+<!-- シンボリックリンク経由でも参照できるか -->
+ls src/public/storage/imgs
+<!-- ブラウザでのアクセス例 -->
+http://localhost/storage/imgs/melon.png
+```
+
+```
 ## 使用技術（実行環境）
 
 PHP 8.1.33 / Laravel 8.83.29
@@ -52,6 +69,7 @@ erDiagram
     bigint id PK
     varchar name
     int price
+    varchar season
     varchar image
     text description
     timestamp created_at

@@ -16,6 +16,17 @@ $imgPath = str_contains($product->image, 'imgs/')
     <div class="info">
         <h1>{{ $product->name }}</h1>
         <p class="price">価格：¥{{ number_format($product->price) }}</p>
+
+        {{-- 複数季節の表示 --}}
+        <p class="season">
+            季節：
+            @forelse($product->seasons as $season)
+            {{ $season->name }}@if(!$loop->last) 、@endif
+            @empty
+            ー
+            @endforelse
+        </p>
+
         <p class="desc">{{ $product->description }}</p>
 
         <a href="{{ route('products.edit', $product) }}" class="btn primary">この商品を編集する</a>

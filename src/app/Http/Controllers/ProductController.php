@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product; #Eloquentを使うため
+use App\Models\Season;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreProductRequest;
@@ -33,24 +34,37 @@ class ProductController extends Controller
     }
 
     // 詳細ページ（読む用途）
-    public function show(\App\Models\Product $product)
+    public function show(Product $product)
     {
+        // 詳細画面で複数季節を表示するために eager load
+        $product->load('seasons');
+
         return view('products.show', compact('product'));
     }
 
     // 編集ページ（書く用途）
-    public function edit(\App\Models\Product $product)
+    public function edit(Product $product)
     {
+        // 既存の関連(seasons)をロードして、フォームで既存チェック反映
+        $product->load('seasons');
+
+        $seasons = Season::select('id', 'name')->orderBy('id')->get();
+
         return view('products.edit', [
-            'product' => $product,
-            'seasons' => self::SEASONS, // 既存の定数をそのまま利用
+            'product'  => $product,
+            'seasons'  => $seasons,
         ]);
     }
 
     /** 登録画面表示 */
     public function create()
     {
-        return view('products.create', ['seasons' => self::SEASONS]);
+        // DBのseasonsから id,name を取得して渡す
+        $seasons = Season::select('id', 'name')->orderBy('id')->get();
+
+        return view('products.create', [
+            'seasons' => $seasons,
+        ]);
     }
 
     /** 登録処理 */
@@ -58,16 +72,13 @@ class ProductController extends Controller
     {
         $data = $request->validated();
 
-        // 画像保存: storage/app/public/imgs に保存 → DB には相対パスを保存
-        $data['image'] = $request->file('image')->store('imgs', 'public'); #'imgs/xxx.png' がDBに入る
+        $data['image'] = $request->file('image')->store('imgs', 'public');
 
-        Product::create([
-            'name'        => $data['name'],
-            'price'       => $data['price'],
-            'season'      => $data['season'] ?? null,
-            'description' => $data['description'],
-            'image'       => $data['image'],
-        ]);
+        // Product本体を作成
+        $product = Product::create($data);
+
+        // seasons を pivot に保存
+        $product->seasons()->sync($data['seasons']);
 
         return redirect('/products');
     }
@@ -79,15 +90,16 @@ class ProductController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
-            $newPath = $request->file('image')->store('imgs', 'public');
-            // 既存画像も消したい場合は以下のコメントを外す
-            // if ($product->image) Storage::disk('public')->delete($product->image);
-            $data['image'] = $newPath;
+            $data['image'] = $request->file('image')->store('imgs', 'public');
         } else {
-            unset($data['image']); // 未選択時は上書きしない
+            unset($data['image']);
         }
 
         $product->update($data);
+
+        // seasons を pivot 更新
+        $product->seasons()->sync($data['seasons'] ?? []);
+
         return redirect('/products');
     }
 

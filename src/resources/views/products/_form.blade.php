@@ -14,138 +14,6 @@ $val = fn($name) => old($name, $isEdit && isset($product) ? $product->{$name} : 
 $currentImage = $isEdit && !empty($product->image) ? asset('storage/'.$product->image) : null;
 @endphp
 
-<style>
-    .form-wrap {
-        max-width: 900px;
-        margin: 24px auto;
-        padding: 0 16px
-    }
-
-    .h1 {
-        font-size: 28px;
-        font-weight: 700;
-        margin: 8px 0 20px
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px
-    }
-
-    label .req {
-        display: inline-block;
-        margin-left: 6px;
-        background: #ff4d4f;
-        color: #fff;
-        border-radius: 4px;
-        padding: 2px 6px;
-        font-size: 12px
-    }
-
-    .input,
-    .select,
-    .textarea {
-        width: 100%;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 10px 12px;
-        background: #fff
-    }
-
-    .textarea {
-        min-height: 160px;
-        resize: vertical
-    }
-
-    .hint {
-        font-size: 12px;
-        color: #777;
-        margin-top: 6px
-    }
-
-    .error {
-        color: #d93025;
-        font-size: 12px;
-        margin-top: 6px
-    }
-
-    .radio-row {
-        display: flex;
-        gap: 22px;
-        align-items: center
-    }
-
-    .preview {
-        margin-top: 10px;
-        border-radius: 8px;
-        border: 1px solid #eee;
-        max-width: 360px;
-        overflow: hidden
-    }
-
-    .preview img {
-        display: block;
-        width: 100%;
-        height: auto
-    }
-
-    .actions {
-        display: flex;
-        gap: 16px;
-        justify-content: center;
-        margin: 28px 0
-    }
-
-    .btn {
-        display: inline-block;
-        border: none;
-        border-radius: 10px;
-        padding: 12px 26px;
-        font-weight: 700;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
-        cursor: pointer
-    }
-
-    .btn-gray {
-        background: #e5e5e5
-    }
-
-    .btn-yellow {
-        background: #f3c617
-    }
-
-    .btn-danger {
-        background: #ff5a5f;
-        color: #fff;
-        padding: 10px 14px;
-        border-radius: 8px
-    }
-
-    .btn:hover {
-        opacity: .95
-    }
-
-    .badge-note {
-        margin-left: 8px;
-        font-size: 12px;
-        color: #777
-    }
-
-    .breadcrumb {
-        margin: 6px 0 14px
-    }
-
-    .delete-area {
-        display: flex;
-        justify-content: flex-end
-    }
-
-    .is-hidden {
-        display: none;
-    }
-</style>
-
 <div class="form-wrap">
     <div class="breadcrumb">
         <a href="{{ url('/products') }}">商品一覧</a>
@@ -187,20 +55,29 @@ $currentImage = $isEdit && !empty($product->image) ? asset('storage/'.$product->
                     placeholder="{{ $isEdit ? '' : '値段を入力' }}">
                 @error('price') <div class="error">{{ $message }}</div> @enderror
 
-                {{-- 季節 --}}
+                {{-- 季節（複数選択） --}}
                 <label style="margin-top:16px;display:block;">季節 <span class="req">必須</span></label>
-                <div class="radio-row">
-                    @php $selectedSeason = old('season', $isEdit ? $product->season ?? null : null); @endphp
-                    @foreach($seasonOptions as $opt)
+
+                @php
+                // Controllerから渡す: $seasons = Season::select('id','name')->orderBy('id')->get();
+                // 選択状態: old() 優先 → 編集時は関連ID
+                $selectedSeasons = collect(old('seasons', ($isEdit ?? false) ? $product->seasons->pluck('id')->all() : []))
+                ->map(fn($v) => (string)$v) // 文字列に正規化（oldと型を合わせる）
+                ->all();
+                @endphp
+
+                <div id="season-checkboxes" class="radio-row">
+                    @foreach($seasons as $s)
                     <label>
-                        <input type="radio" name="season" value="{{ $opt['key'] }}"
-                            {{ (string)$selectedSeason === (string)$opt['key'] ? 'checked' : '' }}>
-                        {{ $opt['label'] }}
+                        <input type="checkbox" name="seasons[]" value="{{ (string)$s->id }}"
+                            {{ in_array((string)$s->id, $selectedSeasons, true) ? 'checked' : '' }}>
+                        {{ $s->name }}
                     </label>
                     @endforeach
                 </div>
-                @error('season') <div class="error">{{ $message }}</div> @enderror
             </div>
+            @error('seasons') <div class="error">{{ $message }}</div> @enderror
+
         </div>
 
         {{-- 商品説明 --}}

@@ -22,6 +22,7 @@ trait ProductRules
     {
         return [
             'name.required'        => '商品名を入力してください',
+            'name.unique'          => 'その商品名は既に登録されています',
             'price.required'       => '値段を入力してください',
             'price.integer'        => '数値で入力してください',
             'price.between'        => '0~10000円以内で入力してください',
